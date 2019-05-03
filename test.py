@@ -3,20 +3,37 @@ from sympy.logic.boolalg import ITE, And, Xor, Or, Not
 from sympy.logic.inference import satisfiable
 x, y = symbols('x,y')
 
-m = [['S', '-', 'B', 'P'], ['W', 'BS', 'P', 'B'], ['S', '-', 'B', '-'], ['A', 'B', 'P', 'B']]
-N = 4
+#m = [['S', '-', 'B', 'P'], ['W', 'BS', 'P', 'B'], ['S', '-', 'B', '-'], ['A', 'B', 'P', 'B']]
+#N = 4
 #(4,4)
 #(1,1)
 
-freq_table = [[0 for i in range(N)] for j in range(N)]
-safe_list = []
 
-current = (3,0)
+#freq_table = [[0 for i in range(N)] for j in range(N)]
+N = -1
+m = [[]]
+freq_table = [[]]
+
+def loadMap():
+  global N, m, freq_table
+  f = open('map.txt')
+  N = int(f.readline())
+  m = [[j for j in line.split()] for line in f]
+  print(m)
+  freq_table = [[0 for i in range(N)] for j in range(N)]
+
+current = (9,0)
+prev = current
+cnt = 0
 kb = True
+loadMap()
+safe_list = []
 
 def check(i, j):
   tmp = []
   pmt = []
+  pmt.append('W_' + str(i) + str(j))
+  pmt.append('P_' + str(i) + str(j))
   if(len(m[i][j]) == 1):
     if(m[i][j] == 'S'):
       if(i-1 >= 0):
@@ -77,8 +94,6 @@ def union(i,j):
   a = True
   t = True
   kb_o, kb_a = check(i,j)
-  #print(kb_o)
-  #print(kb_a)
   for k in kb_o:
     x = symbols(k)
     o = Or(o,x)
@@ -96,9 +111,9 @@ def isSafe(i,j):
   return ((m[i][j] == '-') or (i == 3 and j == 0))
 
 def buildSafeList(possible):
-  global safe_list, kb
+  global kb
+  safe = []
   f = {}
-  t = True
   for pos in possible:
     index = str(pos).split('_')[1]
     if(not (index in f)):
@@ -108,8 +123,9 @@ def buildSafeList(possible):
     if(f[index] == 2):
       w = symbols('W_'+index)
       p = symbols('P_'+index)
-      kb = And(kb, And(w,p))
-      safe_list.append((int(index[0]), int(index[1])))
+      kb = And(kb, And(Not(w),Not(p)))
+      safe.append((int(index[0]), int(index[1])))
+  return safe
 
 def up(pos):
   if(pos[0] - 1 >= 0):
@@ -137,37 +153,43 @@ def right(pos):
 def checkNextMove(i, next_move):
   c = 0
   for j in range(i+1,len(next_move)):
-    if(next_move[i] <= next_move[j]):
+    print((next_move[i][0], next_move[i][1]))
+    if(freq_table[next_move[i][0]][next_move[i][1]] <= freq_table[next_move[j][0]][next_move[j][1]]):
       c += 1
   return (c == len(next_move) - (i+1))
 
-cnt = 0
-kb = True
-kb = And(kb, union(current[0],current[1]))
-
-print(union(3,0))
-while(True):
-  i,j = current
-  print(current)
+def findNextMoveOf(i,j):
   next_move = []
   up = (i-1,j)
   right = (i,j+1)
   left = (i,j-1)
   down = (i+1,j)
-  if(up[0] >=0 and up[0] < N and up[1] >= 0 and up[1] <= N):
+  if(up[0] >=0 and up[0] < N and up[1] >= 0 and up[1] < N):
     next_move.append(up)
-  if(right[0] >=0 and right[0] < N and right[1] >= 0 and right[1] <= N):
+  if(right[0] >=0 and right[0] < N and right[1] >= 0 and right[1] < N):
     next_move.append(right)
-  if(left[0] >=0 and left[0] < N and left[1] >= 0 and left[1] <= N):
+  if(left[0] >=0 and left[0] < N and left[1] >= 0 and left[1] < N):
     next_move.append(left)
-  if(down[0] >=0 and down[0] < N and down[1] >= 0 and down[1] <= N):
+  if(down[0] >=0 and down[0] < N and down[1] >= 0 and down[1] < N):
     next_move.append(down)
+  return next_move
+
+'''-----------------------------------------------------------------------'''
+
+kb = And(kb, union(current[0],current[1]))
+
+while(cnt <= 150):
+  i,j = current
+  print(current)
+  next_move = findNextMoveOf(i,j)
+  #print(next_move)
   if(isSafe(i, j)):
     kb = And(kb, union(i,j))
-    print(kb)
+    #print(kb)
     for d in range(len(next_move)):
       if(checkNextMove(d, next_move)):
         freq_table[next_move[d][0]][next_move[d][1]] += 1
+        prev = current
         current = next_move[d]
         kb = And(kb, union(next_move[d][0], next_move[d][1]))
         break
@@ -197,24 +219,41 @@ while(True):
  
   else:
       kb = And(kb, union(i,j))
-      print(kb)
+      #print(kb)
       result = satisfiable(And(kb, union(i,j)))
-      print(result)
+      #print(result)
       possible = [k for k,v in result.items() if v == False]
-      buildSafeList(possible)
-      if((current[0]-1, current[1]) in safe_list):
-        tmp = (current[0]-1, current[1])
-        current = tmp
-      elif((current[0], current[1]+1) in safe_list):
-        tmp = (current[0], current[1]+1)
-        current = tmp
-      elif((current[0], current[1]-1) in safe_list):
-        tmp = (current[0], current[1]-1)
-        current = tmp
-      elif((current[0]+1, current[1]) in safe_list):
-        tmp = (current[0]+1, current[1])
-        current = tmp
-      print('move to: ' + str(current))
+      safe = buildSafeList(possible)
+      if(len(safe) == 0):
+        current = prev
+      else:
+        print(safe)
+        '''if((current[0]-1, current[1]) in safe_list):
+          tmp = (current[0]-1, current[1])
+          freq_table[current[0]-1][current[1]] += 1
+          current = tmp
+        elif((current[0], current[1]+1) in safe_list):
+          tmp = (current[0], current[1]+1)
+          freq_table[current[0]][current[1]+1] += 1
+          current = tmp
+        elif((current[0], current[1]-1) in safe_list):
+          tmp = (current[0], current[1]-1)
+          freq_table[current[0]][current[1]-1] += 1
+          current = tmp
+        elif((current[0]+1, current[1]) in safe_list):
+          tmp = (current[0]+1, current[1])
+          freq_table[current[0]+1][current[1]] += 1
+          current = tmp'''
+        safe_list += safe
+        for d in range(len(next_move)):
+          if(checkNextMove(d, next_move) and (next_move[d][0], next_move[d][1]) in safe_list):
+            freq_table[next_move[d][0]][next_move[d][1]] += 1
+            prev = current
+            current = next_move[d]
+            kb = And(kb, union(next_move[d][0], next_move[d][1]))
+            break
+  #print('move to: ' + str(current))
+  #print(freq_table)
   cnt+=1
 '''
     if(j+1 < M):
