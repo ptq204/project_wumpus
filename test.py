@@ -77,22 +77,26 @@ def union(i,j):
   a = True
   t = True
   kb_o, kb_a = check(i,j)
-  print(kb_o)
-  print(kb_a)
+  #print(kb_o)
+  #print(kb_a)
   for k in kb_o:
     x = symbols(k)
     o = Or(o,x)
   for k in kb_a:
     x = symbols(k)
     a = And(a,Not(x))
-  t = And(o, a)
+  if(len(kb_o) == 0):
+    t = And(True, a)
+  else:
+    t = And(o, a)
+  #print(satisfiable(t))
   return t
 
 def isSafe(i,j):
   return ((m[i][j] == '-') or (i == 3 and j == 0))
 
 def buildSafeList(possible):
-  global safe_list
+  global safe_list, kb
   f = {}
   t = True
   for pos in possible:
@@ -103,7 +107,8 @@ def buildSafeList(possible):
       f[index] += 1
     if(f[index] == 2):
       w = symbols('W_'+index)
-      t = And(t, Not(w))
+      p = symbols('P_'+index)
+      kb = And(kb, And(w,p))
       safe_list.append((int(index[0]), int(index[1])))
 
 def up(pos):
@@ -138,15 +143,12 @@ def checkNextMove(i, next_move):
 
 cnt = 0
 kb = True
+kb = And(kb, union(current[0],current[1]))
 
-print(up(current))
-print(down(current))
-print(left(current))
+print(union(3,0))
 while(True):
-  tmp = up(current)
-  print(tmp)
-  print(up(current))
   i,j = current
+  print(current)
   next_move = []
   up = (i-1,j)
   right = (i,j+1)
@@ -161,6 +163,8 @@ while(True):
   if(down[0] >=0 and down[0] < N and down[1] >= 0 and down[1] <= N):
     next_move.append(down)
   if(isSafe(i, j)):
+    kb = And(kb, union(i,j))
+    print(kb)
     for d in range(len(next_move)):
       if(checkNextMove(d, next_move)):
         freq_table[next_move[d][0]][next_move[d][1]] += 1
@@ -194,18 +198,23 @@ while(True):
   else:
       kb = And(kb, union(i,j))
       print(kb)
-      result = satisfiable(kb)
+      result = satisfiable(And(kb, union(i,j)))
       print(result)
       possible = [k for k,v in result.items() if v == False]
       buildSafeList(possible)
-      if(up(current) in safe_list):
-        current = up(current)
-      elif(right(current) in safe_list):
-        current = right(current)
-      elif(left(current) in safe_list):
-        current = left(current)
-      elif(down(current) in safe_list):
-        current = down(current)
+      if((current[0]-1, current[1]) in safe_list):
+        tmp = (current[0]-1, current[1])
+        current = tmp
+      elif((current[0], current[1]+1) in safe_list):
+        tmp = (current[0], current[1]+1)
+        current = tmp
+      elif((current[0], current[1]-1) in safe_list):
+        tmp = (current[0], current[1]-1)
+        current = tmp
+      elif((current[0]+1, current[1]) in safe_list):
+        tmp = (current[0]+1, current[1])
+        current = tmp
+      print('move to: ' + str(current))
   cnt+=1
 '''
     if(j+1 < M):
