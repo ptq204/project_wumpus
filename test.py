@@ -30,6 +30,16 @@ kb = True
 loadMap()
 safe_list = []
 
+#---------------------------SUA CHO NAY
+visited = {}
+before = {}
+
+visited = initvisited(m)
+before = initbefore(m)
+cur_exit_length = 0
+start = (9, 0)
+#-----------------------
+
 def check(i, j):
   tmp = []
   pmt = []
@@ -179,7 +189,7 @@ def findNextMoveOf(i,j):
 
 kb = And(kb, union(current[0],current[1]))
 
-while(cnt <= 150):
+while(cnt + cur_exit_length <= 150):
   i,j = current
   print(current)
   next_move = findNextMoveOf(i,j)
@@ -254,7 +264,14 @@ while(cnt <= 150):
             kb = And(kb, union(next_move[d][0], next_move[d][1]))
             break
   #print('move to: ' + str(current))
-  #print(freq_table)
+  # print(freq_table)
+  #-----------------SUA CHO NAY -------------------#
+  BFS(current, start, visited, before, freq_table, N)
+  way_to_exit = path(before, current, start)
+  print(way_to_exit)
+  cur_exit_length = len(way_to_exit)
+  print(cur_exit_length)
+  #------------------------------------------------#
   cnt+=1
 '''
     if(j+1 < M):
