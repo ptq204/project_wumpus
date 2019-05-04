@@ -20,12 +20,12 @@ def BFS(current, start, visited, before, f_table):
             queue.append((state[0] - 1, state[1]))
             before[(state[0] - 1, state[1])] = state
 
-        if (visited[(state[0], state[1] + 1)] == 0 and f_table[state[0]][state[1] + 1]!=1):
+        if (visited[(state[0], state[1] + 1)] == 0 and f_table[state[0]][state[1] + 1]!=0):
             visited[(state[0], state[1]+1)] = 1
             queue.append((state[0], state[1]+1))
             before[(state[0], state[1]+1)] = state
 
-        if (visited[(state[0], state[1] - 1)] == 0 and f_table[state[0]][state[1] - 1]!=1):
+        if (visited[(state[0], state[1] - 1)] == 0 and f_table[state[0]][state[1] - 1]!=0):
             visited[(state[0], state[1]-1)] = 1
             queue.append((state[0], state[1]-1))
             before[(state[0], state[1]-1)] = state
