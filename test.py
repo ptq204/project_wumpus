@@ -1,6 +1,7 @@
 from sympy import Symbol, symbols
 from sympy.logic.boolalg import ITE, And, Xor, Or, Not
 from sympy.logic.inference import satisfiable
+from backtostart import *
 x, y = symbols('x,y')
 
 #m = [['S', '-', 'B', 'P'], ['W', 'BS', 'P', 'B'], ['S', '-', 'B', '-'], ['A', 'B', 'P', 'B']]
