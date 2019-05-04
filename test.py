@@ -30,15 +30,12 @@ kb = True
 loadMap()
 safe_list = []
 
-#---------------------------SUA CHO NAY
-visited = {}
-before = {}
-
-visited = initvisited(m)
-before = initbefore(m)
+#---------------------------SUA CHO NAY--------------------
+visited = [[0 for i in range(N)] for j in range(N)]
+before = [[(-1, -1) for i in range(N)] for j in range(N)]
 cur_exit_length = 0
 start = (9, 0)
-#-----------------------
+#---------------------------------------------
 
 def check(i, j):
   tmp = []
