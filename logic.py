@@ -2,42 +2,8 @@ from sympy import Symbol, symbols
 from sympy.logic.boolalg import ITE, And, Xor, Or, Not
 from sympy.logic.inference import satisfiable
 from backtostart import *
-x, y = symbols('x,y')
 
-#m = [['S', '-', 'B', 'P'], ['W', 'BS', 'P', 'B'], ['S', '-', 'B', '-'], ['A', 'B', 'P', 'B']]
-#N = 4
-#(4,4)
-#(1,1)
-
-
-#freq_table = [[0 for i in range(N)] for j in range(N)]
-N = -1
-m = [[]]
-freq_table = [[]]
-
-def loadMap():
-  global N, m, freq_table
-  f = open('map.txt')
-  N = int(f.readline())
-  m = [[j for j in line.split()] for line in f]
-  #print(m)
-  freq_table = [[0 for i in range(N)] for j in range(N)]
-
-current = (9,0)
-prev = current
-cnt = 0
-kb = True
-loadMap()
-safe_list = []
-
-#---------------------------SUA CHO NAY--------------------
-visited = [[0 for i in range(N)] for j in range(N)]
-before = [[(-1, -1) for i in range(N)] for j in range(N)]
-cur_exit_length = 0
-start = (9, 0)
-#---------------------------------------------
-
-def check(i, j):
+def check(i, j, m, N):
   tmp = []
   pmt = []
   pmt.append('W_' + str(i) + str(j))
@@ -97,11 +63,11 @@ def check(i, j):
       tmp.append('P_' + str(i) + str(j-1))
   return (tmp, pmt)
 
-def union(i,j):
+def union(i,j, m, N):
   o = False
   a = True
   t = True
-  kb_o, kb_a = check(i,j)
+  kb_o, kb_a = check(i,j, m, N)
   for k in kb_o:
     x = symbols(k)
     o = Or(o,x)
@@ -115,11 +81,10 @@ def union(i,j):
   #print(satisfiable(t))
   return t
 
-def isSafe(i,j):
+def isSafe(i, j, start, m):
   return ((m[i][j] == '-') or (i == start[0] and j == start[1]))
 
-def buildSafeList(possible):
-  global kb
+def buildSafeList(possible, kb):
   safe = []
   f = {}
   for pos in possible:
@@ -135,7 +100,101 @@ def buildSafeList(possible):
       safe.append((int(index[0]), int(index[1])))
   return safe
 
-def up(pos):
+def checkNextMove(i, next_move, freq_table):
+  c = 0
+  for j in range(i+1,len(next_move)):
+    if(freq_table[next_move[i][0]][next_move[i][1]] <= freq_table[next_move[j][0]][next_move[j][1]]):
+      c += 1
+  return (c == len(next_move) - (i+1))
+
+def findNextMoveOf(i,j,N):
+  next_move = []
+  up = (i-1,j)
+  right = (i,j+1)
+  left = (i,j-1)
+  down = (i+1,j)
+  if(up[0] >=0 and up[0] < N and up[1] >= 0 and up[1] < N):
+    next_move.append(up)
+  if(right[0] >=0 and right[0] < N and right[1] >= 0 and right[1] < N):
+    next_move.append(right)
+  if(left[0] >=0 and left[0] < N and left[1] >= 0 and left[1] < N):
+    next_move.append(left)
+  if(down[0] >=0 and down[0] < N and down[1] >= 0 and down[1] < N):
+    next_move.append(down)
+  return next_move
+
+def findPathOfGame(m, N):
+  freq_table = [[0 for i in range(N)] for j in range(N)]
+  current = (9, 0)
+  prev = current
+  cnt = 0
+  kb = True
+  safe_list = []
+  move_path = []
+  visited = [[0 for i in range(N)] for j in range(N)]
+  before = [[(-1, -1) for i in range(N)] for j in range(N)]
+  cur_exit_length = 0
+  start = (9, 0)
+
+  while(cnt <= 150):
+
+    i,j = current
+    visited[i][j] = 1
+
+    if(current != prev):
+      move_path.append(current)
+    
+    moved = False
+    print('current: {}, prev: {}'.format(current, prev))
+    next_move = findNextMoveOf(i,j,N)
+    #print(next_move)
+    if(isSafe(i, j, start, m)):
+      kb = And(kb, union(i, j, m, N))
+      #print(kb)
+      for d in range(len(next_move)):
+        if(checkNextMove(d, next_move, freq_table)):
+          freq_table[next_move[d][0]][next_move[d][1]] += 1
+          prev = current
+          current = next_move[d]
+          moved = True
+          kb = And(kb, union(next_move[d][0], next_move[d][1], m, N))
+          break
+
+    else:
+      kb = And(kb, union(i, j, m, N))
+      #print(kb)
+      result = satisfiable(And(kb, union(i, j, m, N)))
+      #print(result)
+      possible = [k for k,v in result.items() if v == False]
+      safe = buildSafeList(possible, kb)
+      if(len(safe) == 0):
+        current = prev
+      else:
+        safe_list += safe
+        for d in range(len(next_move)):
+          if(checkNextMove(d, next_move, freq_table) and (next_move[d][0], next_move[d][1]) in safe_list):
+            freq_table[next_move[d][0]][next_move[d][1]] += 1
+            prev = current
+            current = next_move[d]
+            moved = True
+            kb = And(kb, union(next_move[d][0], next_move[d][1], m, N))
+            break
+    #print('move to: ' + str(current))
+    # print(freq_table)
+    #-----------------SUA CHO NAY -------------------#
+    if(moved == False):
+      BFS(current, start, visited, before, freq_table, N)
+      print(visited)
+      way_to_exit = path(before, current, start)
+      print(way_to_exit)
+      cur_exit_length = len(way_to_exit)
+      print(cur_exit_length)
+      break
+    #------------------------------------------------#
+    cnt+=1
+  return move_path
+
+'''def up(pos):
   if(pos[0] - 1 >= 0):
     tmp = (pos[0] - 1, pos[1])
     print(tmp)
@@ -157,85 +216,4 @@ def right(pos):
   if(pos[1]+1 < N):
     return (pos[0],pos[1]+1)
   return (-1, -1)
-
-def checkNextMove(i, next_move):
-  c = 0
-  for j in range(i+1,len(next_move)):
-    if(freq_table[next_move[i][0]][next_move[i][1]] <= freq_table[next_move[j][0]][next_move[j][1]]):
-      c += 1
-  return (c == len(next_move) - (i+1))
-
-def findNextMoveOf(i,j):
-  next_move = []
-  up = (i-1,j)
-  right = (i,j+1)
-  left = (i,j-1)
-  down = (i+1,j)
-  if(up[0] >=0 and up[0] < N and up[1] >= 0 and up[1] < N):
-    next_move.append(up)
-  if(right[0] >=0 and right[0] < N and right[1] >= 0 and right[1] < N):
-    next_move.append(right)
-  if(left[0] >=0 and left[0] < N and left[1] >= 0 and left[1] < N):
-    next_move.append(left)
-  if(down[0] >=0 and down[0] < N and down[1] >= 0 and down[1] < N):
-    next_move.append(down)
-  return next_move
-
-'''-----------------------------------------------------------------------'''
-
-kb = And(kb, union(current[0],current[1]))
-
-while(cnt + cur_exit_length <= 150):
-  i,j = current
-  visited[i][j] = True
-  moved = False
-  print('current: {}, prev: {}'.format(current, prev))
-  next_move = findNextMoveOf(i,j)
-  #print(next_move)
-  if(isSafe(i, j)):
-    kb = And(kb, union(i,j))
-    #print(kb)
-    for d in range(len(next_move)):
-      if(checkNextMove(d, next_move)):
-        freq_table[next_move[d][0]][next_move[d][1]] += 1
-        prev = current
-        current = next_move[d]
-        moved = True
-        kb = And(kb, union(next_move[d][0], next_move[d][1]))
-        break
-
-  else:
-    kb = And(kb, union(i,j))
-    #print(kb)
-    result = satisfiable(And(kb, union(i,j)))
-    #print(result)
-    possible = [k for k,v in result.items() if v == False]
-    safe = buildSafeList(possible)
-    if(len(safe) == 0):
-      current = prev
-    else:
-      safe_list += safe
-      for d in range(len(next_move)):
-        if(checkNextMove(d, next_move) and (next_move[d][0], next_move[d][1]) in safe_list):
-          freq_table[next_move[d][0]][next_move[d][1]] += 1
-          prev = current
-          current = next_move[d]
-          moved = True
-          kb = And(kb, union(next_move[d][0], next_move[d][1]))
-          break
-  #print('move to: ' + str(current))
-  # print(freq_table)
-  #-----------------SUA CHO NAY -------------------#
-  if(moved == False):
-    BFS(current, start, visited, before, freq_table, N)
-    way_to_exit = path(before, current, start)
-    print(way_to_exit)
-    cur_exit_length = len(way_to_exit)
-    print(cur_exit_length)
-    break
-  #------------------------------------------------#
-  cnt+=1
-  
-'''print((y & x).subs({x: True, y: True}))
-a,b,c,d,e,f,g,h = symbols('a,b,c,d,e,f,g,h')
-print(And(a, b, c, d).subs({a: True, b: False, c: True, d: False, e: True, f: True, g: True, h: True}))'''
+'''

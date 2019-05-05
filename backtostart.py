@@ -20,49 +20,49 @@ def initvisited(graph):
     return diction    
 
 def BFS(current, start, visited, before, f_table, n):
-    print("da vao ham")
+    #print("da vao ham")
     queue = [current]
     state = queue.pop(0)
     i, j= state
     visited[i][j] = 1
-    print("sap toi r")
+    #print("sap toi r")
     while True:
         i, j = state
         if(i + 1 < n):
-            print("ok")
-            print(visited[i + 1][j])
-            print(f_table[i + 1][j])
+            #print("ok")
+            #print(visited[i + 1][j])
+            #print(f_table[i + 1][j])
             if (visited[i + 1][j] == 0 and f_table[i+1][j]!=0):
-                print("ok1")
+                #print("ok1")
                 visited[i + 1][j] = 1
                 queue.append((i + 1, j))
                 before[i+1][j] = state
-                print("da vao 1")
+                #print("da vao 1")
 
         if(i - 1 >= 0):
-            print("ok")
-            print(visited[i - 1][j])
-            print(f_table[i - 1][j])
+            #print("ok")
+            #print(visited[i - 1][j])
+            #print(f_table[i - 1][j])
             if (visited[i-1][j] == 0 and f_table[i-1][j]!=0):
-                print("ok2")
+                #print("ok2")
                 visited[i-1][j] = 1
                 queue.append((i - 1, j))
                 before[i-1][j] = state
-                print("da vao 2")
+                #print("da vao 2")
 
         if(j + 1 < n):
             if (visited[i][j+1] == 0 and f_table[i][j + 1]!=0):
                 visited[i][j+1] = 1
                 queue.append((i, j+1))
                 before[i][j+1] = state
-                print("da vao 3")
+                #print("da vao 3")
 
         if(j - 1 >= 0):
             if (visited[i][j-1] == 0 and f_table[i][j - 1]!=0):
                 visited[i][j-1] = 1
                 queue.append((i, j-1))
                 before[i][j-1] = state
-                print("da vao 4")
+                #print("da vao 4")
 
         if len(queue) == 0:
             break
@@ -100,4 +100,4 @@ def path(before, current, start):
 #     return l   
 
 
-print(visited[5][6])
+#print(visited[5][6])
