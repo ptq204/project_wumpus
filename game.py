@@ -74,7 +74,9 @@ class Game:
         if event.type == QUIT:
           exit()
       for i in range(len(path)):
-        if(i > 0):
+        if(i == 0):
+          self.moveAgent(path[i], path[i], m)
+        else:
           self.moveAgent(path[i-1], path[i], m)
-          pygame.display.update()
-          self.fpsClock.tick(9)
+        pygame.display.update()
+        self.fpsClock.tick(9)

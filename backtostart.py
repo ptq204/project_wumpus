@@ -28,6 +28,7 @@ def BFS(current, start, visited, before, f_table, n):
     #print("sap toi r")
     while True:
         i, j = state
+        print(state)
         if(i + 1 < n):
             #print("ok")
             #print(visited[i + 1][j])
@@ -63,14 +64,13 @@ def BFS(current, start, visited, before, f_table, n):
                 queue.append((i, j-1))
                 before[i][j-1] = state
                 #print("da vao 4")
-
+        if state == start:
+            break
         if len(queue) == 0:
             break
         else:
             state = queue.pop(0)
-
-        if state == start:
-            break
+    return before
 
 def path(before, current, start):
     result = []
@@ -80,7 +80,8 @@ def path(before, current, start):
     result.append(temp)
     while(before[temp[0]][temp[1]]!=current):
         result.append(before[temp[0]][temp[1]])
-        temp = before[temp[temp[0]][temp[1]]]
+        print(temp)
+        temp = before[temp[0]][temp[1]]
     result.append(current)
     result.reverse()
     return result   
