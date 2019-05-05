@@ -125,12 +125,13 @@ def findNextMoveOf(i,j,N):
 
 def findPathOfGame(m, N):
   freq_table = [[0 for i in range(N)] for j in range(N)]
+  freq_table[9][0] = 1
   current = (9, 0)
   prev = current
   cnt = 0
   kb = True
   safe_list = []
-  move_path = []
+  move_path = [current]
   visited = [[0 for i in range(N)] for j in range(N)]
   before = [[(-1, -1) for i in range(N)] for j in range(N)]
   cur_exit_length = 0
@@ -139,7 +140,7 @@ def findPathOfGame(m, N):
   while(cnt <= 150):
 
     i,j = current
-    visited[i][j] = 1
+    #visited[i][j] = 1
 
     if(current != prev):
       move_path.append(current)
@@ -183,16 +184,18 @@ def findPathOfGame(m, N):
     # print(freq_table)
     #-----------------SUA CHO NAY -------------------#
     if(moved == False):
-      BFS(current, start, visited, before, freq_table, N)
-      print(visited)
+      print(freq_table)
+      before = BFS(current, start, visited, before, freq_table, N)
+      print(before)
       way_to_exit = path(before, current, start)
+      way_to_exit.pop(0)
       print(way_to_exit)
       cur_exit_length = len(way_to_exit)
       print(cur_exit_length)
       break
     #------------------------------------------------#
     cnt+=1
-  return move_path
+  return move_path + way_to_exit
 
 '''def up(pos):
   if(pos[0] - 1 >= 0):
