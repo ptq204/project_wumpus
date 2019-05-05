@@ -1,0 +1,10 @@
+black = (0,0,0)
+green = (0,255,0)
+red = (255,0,0)
+blue = (0,0,255)
+white = (255,255,255)
+purple = (137, 66, 244)
+square_width = 40
+square_height = 40
+window_width = 320
+window_height = 320
