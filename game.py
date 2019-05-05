@@ -2,7 +2,6 @@ from logic import *
 import pygame
 from pygame.locals import *
 from maze import *
-from backtostart import *
 from material import *
 
 class Game:
@@ -64,82 +63,18 @@ class Game:
   def erase(self, i, j):
     pygame.draw.rect(self.screen, black, (j*40, i*40, 40, 40))
     self.drawSquare(i,j)
-  
+
   def play(self):
-
+    m = self.board.map
+    N = self.board.N
+    path = findPathOfGame(m, N)
     while(True):
-      N = self.board.N
-      m = self.board.map
-      freq_table = [[0 for i in range(N)] for j in range(N)]
-      current = (9, 0)
-      prev = current
-      cnt = 0
-      kb = True
-      safe_list = []
-
-      visited = [[0 for i in range(N)] for j in range(N)]
-      before = [[(-1, -1) for i in range(N)] for j in range(N)]
-      cur_exit_length = 0
-      start = (9, 0)
-
       self.drawMap(m, N)
       for event in pygame.event.get():
         if event.type == QUIT:
-          exit() 
-      while(cnt <= 150):
-
-        i,j = current
-        visited[i][j] = True
-
-        if(current != prev):
-          self.moveAgent(prev, current, m)
+          exit()
+      for i in range(len(path)):
+        if(i > 0):
+          self.moveAgent(path[i-1], path[i], m)
           pygame.display.update()
           self.fpsClock.tick(9)
-
-        moved = False
-        print('current: {}, prev: {}'.format(current, prev))
-        next_move = findNextMoveOf(i,j,N)
-        #print(next_move)
-        if(isSafe(i, j, start, m)):
-          kb = And(kb, union(i, j, m, N))
-          #print(kb)
-          for d in range(len(next_move)):
-            if(checkNextMove(d, next_move, freq_table)):
-              freq_table[next_move[d][0]][next_move[d][1]] += 1
-              prev = current
-              current = next_move[d]
-              moved = True
-              kb = And(kb, union(next_move[d][0], next_move[d][1], m, N))
-              break
-
-        else:
-          kb = And(kb, union(i, j, m, N))
-          #print(kb)
-          result = satisfiable(And(kb, union(i, j, m, N)))
-          #print(result)
-          possible = [k for k,v in result.items() if v == False]
-          safe = buildSafeList(possible, kb)
-          if(len(safe) == 0):
-            current = prev
-          else:
-            safe_list += safe
-            for d in range(len(next_move)):
-              if(checkNextMove(d, next_move, freq_table) and (next_move[d][0], next_move[d][1]) in safe_list):
-                freq_table[next_move[d][0]][next_move[d][1]] += 1
-                prev = current
-                current = next_move[d]
-                moved = True
-                kb = And(kb, union(next_move[d][0], next_move[d][1], m, N))
-                break
-        #print('move to: ' + str(current))
-        # print(freq_table)
-        #-----------------SUA CHO NAY -------------------#
-        if(moved == False):
-          BFS(current, start, visited, before, freq_table, N)
-          way_to_exit = path(before, current, start)
-          print(way_to_exit)
-          cur_exit_length = len(way_to_exit)
-          print(cur_exit_length)
-          break
-        #------------------------------------------------#
-        cnt+=1

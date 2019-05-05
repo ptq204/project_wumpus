@@ -1,6 +1,7 @@
 from sympy import Symbol, symbols
 from sympy.logic.boolalg import ITE, And, Xor, Or, Not
 from sympy.logic.inference import satisfiable
+from backtostart import *
 
 def check(i, j, m, N):
   tmp = []
@@ -121,6 +122,77 @@ def findNextMoveOf(i,j,N):
   if(down[0] >=0 and down[0] < N and down[1] >= 0 and down[1] < N):
     next_move.append(down)
   return next_move
+
+def findPathOfGame(m, N):
+  freq_table = [[0 for i in range(N)] for j in range(N)]
+  current = (9, 0)
+  prev = current
+  cnt = 0
+  kb = True
+  safe_list = []
+  move_path = []
+  visited = [[0 for i in range(N)] for j in range(N)]
+  before = [[(-1, -1) for i in range(N)] for j in range(N)]
+  cur_exit_length = 0
+  start = (9, 0)
+
+  while(cnt <= 150):
+
+    i,j = current
+    visited[i][j] = 1
+
+    if(current != prev):
+      move_path.append(current)
+    
+    moved = False
+    print('current: {}, prev: {}'.format(current, prev))
+    next_move = findNextMoveOf(i,j,N)
+    #print(next_move)
+    if(isSafe(i, j, start, m)):
+      kb = And(kb, union(i, j, m, N))
+      #print(kb)
+      for d in range(len(next_move)):
+        if(checkNextMove(d, next_move, freq_table)):
+          freq_table[next_move[d][0]][next_move[d][1]] += 1
+          prev = current
+          current = next_move[d]
+          moved = True
+          kb = And(kb, union(next_move[d][0], next_move[d][1], m, N))
+          break
+
+    else:
+      kb = And(kb, union(i, j, m, N))
+      #print(kb)
+      result = satisfiable(And(kb, union(i, j, m, N)))
+      #print(result)
+      possible = [k for k,v in result.items() if v == False]
+      safe = buildSafeList(possible, kb)
+      if(len(safe) == 0):
+        current = prev
+      else:
+        safe_list += safe
+        for d in range(len(next_move)):
+          if(checkNextMove(d, next_move, freq_table) and (next_move[d][0], next_move[d][1]) in safe_list):
+            freq_table[next_move[d][0]][next_move[d][1]] += 1
+            prev = current
+            current = next_move[d]
+            moved = True
+            kb = And(kb, union(next_move[d][0], next_move[d][1], m, N))
+            break
+    #print('move to: ' + str(current))
+    # print(freq_table)
+    #-----------------SUA CHO NAY -------------------#
+    if(moved == False):
+      BFS(current, start, visited, before, freq_table, N)
+      print(visited)
+      way_to_exit = path(before, current, start)
+      print(way_to_exit)
+      cur_exit_length = len(way_to_exit)
+      print(cur_exit_length)
+      break
+    #------------------------------------------------#
+    cnt+=1
+  return move_path
 
 '''def up(pos):
   if(pos[0] - 1 >= 0):
