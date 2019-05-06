@@ -146,7 +146,7 @@ def findPathOfGame(m, N):
       move_path.append(current)
     
     moved = False
-    print('current: {}, prev: {}'.format(current, prev))
+    # print('current: {}, prev: {}'.format(current, prev))
     next_move = findNextMoveOf(i,j,N)
     #print(next_move)
     if(isSafe(i, j, start, m)):
@@ -184,14 +184,14 @@ def findPathOfGame(m, N):
     # print(freq_table)
     #-----------------SUA CHO NAY -------------------#
     if(moved == False):
-      print(freq_table)
+      # print(freq_table)
       before = BFS(current, start, visited, before, freq_table, N)
-      print(before)
+      # print(before)
       way_to_exit = path(before, current, start)
       way_to_exit.pop(0)
-      print(way_to_exit)
+      # print(way_to_exit)
       cur_exit_length = len(way_to_exit)
-      print(cur_exit_length)
+      # print(cur_exit_length)
       break
     #------------------------------------------------#
     cnt+=1
