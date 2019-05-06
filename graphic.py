@@ -21,12 +21,16 @@ wn.bgcolor("white")
 wn.title("Wumpus World")
 wn.setup(700, 700)
 
+wn.register_shape("image/s.gif")
+wn.register_shape("image/monster.gif")
+wn.register_shape("image/gold.gif")
+wn.register_shape("image/agent.gif")
 
 class Pen(turtle.Turtle):
     def __init__(self):
         turtle.Turtle.__init__(self)
         self.shape("square")
-        self.color("blue")
+        self.color("gray")
         self.penup()
         self.speed(0)
         self.shapesize(2.5,2.5)
@@ -34,7 +38,7 @@ class Pen(turtle.Turtle):
 class Gold(turtle.Turtle):
     def __init__(self, x, y):
         turtle.Turtle.__init__(self)
-        self.shape("circle")
+        self.shape("image/gold.gif")
         self.color("yellow")
         self.penup()
         self.speed(0)
@@ -49,7 +53,7 @@ class Gold(turtle.Turtle):
 class Wumpus(turtle.Turtle):
     def __init__(self, x, y):
         turtle.Turtle.__init__(self)
-        self.shape("turtle")
+        self.shape("image/monster.gif")
         self.color("red")
         self.penup()
         self.speed(0)
@@ -160,9 +164,9 @@ print(x_agent, y_agent)
 
 solution = findPathOfGame(m, N)
 
-pen.color("orange")
+# pen.color("orange")
 for room in solution:
     (i, j) = room
+    # pen.goto(mostLeft + (j *area_1_block), mostTop -(i *area_1_block))
     agent.goto(mostLeft + (j *area_1_block), mostTop -(i *area_1_block))
-    pen.goto(mostLeft + (j *area_1_block), mostTop -(i *area_1_block))
     pen.stamp()
