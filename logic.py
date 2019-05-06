@@ -125,8 +125,8 @@ def findNextMoveOf(i,j,N):
 
 def findPathOfGame(m, N):
   freq_table = [[0 for i in range(N)] for j in range(N)]
-  freq_table[9][0] = 1
-  current = (9, 0)
+  freq_table[N-1][0] = 1
+  current = (N-1, 0)
   prev = current
   cnt = 0
   kb = True
@@ -135,7 +135,7 @@ def findPathOfGame(m, N):
   visited = [[0 for i in range(N)] for j in range(N)]
   before = [[(-1, -1) for i in range(N)] for j in range(N)]
   cur_exit_length = 0
-  start = (9, 0)
+  start = (N-1, 0)
 
   while(cnt <= 150):
 
