@@ -1,9 +1,15 @@
 import turtle
 import math
 from logic import findPathOfGame
-
+import sys
 #---------------SET UP MAP-------------------------
-f = open('map.txt')
+filename = ''
+print(sys.argv)
+if(sys.argv[1] == '1'):
+    filename = 'map.txt'
+elif(sys.argv[1] == '2'):
+    filename = 'map01.txt'
+f = open(filename)
 N = int(f.readline())
 m = [[j for j in line.split()] for line in f]
 area_1_block = 55
