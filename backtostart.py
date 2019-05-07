@@ -80,7 +80,7 @@ def path(before, current, start):
     result.append(temp)
     while(before[temp[0]][temp[1]]!=current):
         result.append(before[temp[0]][temp[1]])
-        print(temp)
+        #print(temp)
         temp = before[temp[0]][temp[1]]
     result.append(current)
     result.reverse()

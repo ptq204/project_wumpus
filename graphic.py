@@ -162,7 +162,7 @@ for x in range (len(m)):
 
 setup_maze(m)
 
-print(x_agent, y_agent)
+#print(x_agent, y_agent)
 
 solution = findPathOfGame(m, N)
 

@@ -186,6 +186,7 @@ def findPathOfGame(m, N):
     if(moved == False):
       # print(freq_table)
       before = BFS(current, start, visited, before, freq_table, N)
+      print(satisfiable(kb))
       # print(before)
       way_to_exit = path(before, current, start)
       way_to_exit.pop(0)
