@@ -1,0 +1,5 @@
+4
+S - B P
+W BSG P B
+S - B -
+A B P B

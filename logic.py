@@ -4,51 +4,54 @@ from sympy.logic.inference import satisfiable
 from backtostart import *
 
 def check(i, j, m, N):
-  tmp = []
-  pmt = []
+  tmp = [] # Or list
+  pmt = [] # And list
   pmt.append('W_' + str(i) + str(j))
   pmt.append('P_' + str(i) + str(j))
-  if(len(m[i][j]) == 1):
-    if(m[i][j] == 'S'):
-      if(i-1 >= 0):
-        tmp.append('W_' + str(i-1) + str(j))
-        pmt.append('P_' + str(i-1) + str(j))
-      if(j+1 < N):
-        tmp.append('W_' + str(i) + str(j+1))
-        pmt.append('P_' + str(i) + str(j+1))
-      if(i+1 < N):
-        tmp.append('W_' + str(i+1) + str(j))
-        pmt.append('P_' + str(i+1) + str(j))
-      if(j-1 >= 0):
-        tmp.append('W_' + str(i) + str(j-1))
-        pmt.append('P_' + str(i) + str(j-1))
-    elif(m[i][j] == 'B'):
-      if(i-1 >= 0):
-        tmp.append('P_' + str(i-1) + str(j))
-        pmt.append('W_' + str(i-1) + str(j))
-      if(j+1 < N):
-        tmp.append('P_' + str(i) + str(j+1))
-        pmt.append('W_' + str(i) + str(j+1))
-      if(i+1 < N):
-        tmp.append('P_' + str(i+1) + str(j))
-        pmt.append('W_' + str(i+1) + str(j))
-      if(j-1 >= 0):
-        tmp.append('P_' + str(i) + str(j-1))
-        pmt.append('W_' + str(i) + str(j-1))
-    elif(m[i][j] == '-'):
-      if(i-1 >= 0):
-        pmt.append('P_' + str(i-1) + str(j))
-        pmt.append('W_' + str(i-1) + str(j))
-      if(j+1 < N):
-        pmt.append('P_' + str(i) + str(j+1))
-        pmt.append('W_' + str(i) + str(j+1))
-      if(i+1 < N):
-        pmt.append('P_' + str(i+1) + str(j))
-        pmt.append('W_' + str(i+1) + str(j))
-      if(j-1 >= 0):
-        pmt.append('P_' + str(i) + str(j-1))
-        pmt.append('W_' + str(i) + str(j-1))
-  if(len(m[i][j]) == 2):
+
+  if(m[i][j] == 'S' or m[i][j] == 'SG' or m[i][j] == 'GS'):
+    if(i-1 >= 0):
+      tmp.append('W_' + str(i-1) + str(j))
+      pmt.append('P_' + str(i-1) + str(j))
+    if(j+1 < N):
+      tmp.append('W_' + str(i) + str(j+1))
+      pmt.append('P_' + str(i) + str(j+1))
+    if(i+1 < N):
+      tmp.append('W_' + str(i+1) + str(j))
+      pmt.append('P_' + str(i+1) + str(j))
+    if(j-1 >= 0):
+      tmp.append('W_' + str(i) + str(j-1))
+      pmt.append('P_' + str(i) + str(j-1))
+
+  elif(m[i][j] == 'B' or m[i][j] == 'BG' or m[i][j] == 'GB'):
+    if(i-1 >= 0):
+      tmp.append('P_' + str(i-1) + str(j))
+      pmt.append('W_' + str(i-1) + str(j))
+    if(j+1 < N):
+      tmp.append('P_' + str(i) + str(j+1))
+      pmt.append('W_' + str(i) + str(j+1))
+    if(i+1 < N):
+      tmp.append('P_' + str(i+1) + str(j))
+      pmt.append('W_' + str(i+1) + str(j))
+    if(j-1 >= 0):
+      tmp.append('P_' + str(i) + str(j-1))
+      pmt.append('W_' + str(i) + str(j-1))
+
+  elif(m[i][j] == '-'):
+    if(i-1 >= 0):
+      pmt.append('P_' + str(i-1) + str(j))
+      pmt.append('W_' + str(i-1) + str(j))
+    if(j+1 < N):
+      pmt.append('P_' + str(i) + str(j+1))
+      pmt.append('W_' + str(i) + str(j+1))
+    if(i+1 < N):
+      pmt.append('P_' + str(i+1) + str(j))
+      pmt.append('W_' + str(i+1) + str(j))
+    if(j-1 >= 0):
+      pmt.append('P_' + str(i) + str(j-1))
+      pmt.append('W_' + str(i) + str(j-1))
+
+  elif(m[i][j] == 'BS' or m[i][j] == 'SB' or len(m[i][j]) == 3):
     if(i-1 >= 0):
       tmp.append('W_' + str(i-1) + str(j))
       tmp.append('P_' + str(i-1) + str(j))
@@ -61,6 +64,7 @@ def check(i, j, m, N):
     if(j-1 >= 0):
       tmp.append('W_' + str(i) + str(j-1))
       tmp.append('P_' + str(i) + str(j-1))
+
   return (tmp, pmt)
 
 def union(i,j, m, N):
@@ -123,10 +127,10 @@ def findNextMoveOf(i,j,N):
     next_move.append(down)
   return next_move
 
-def findPathOfGame(m, N):
+def findPathOfGame(m, N, start):
   freq_table = [[0 for i in range(N)] for j in range(N)]
   freq_table[N-1][0] = 1
-  current = (N-1, 0)
+  current = start
   prev = current
   cnt = 0
   kb = True
@@ -135,22 +139,22 @@ def findPathOfGame(m, N):
   visited = [[0 for i in range(N)] for j in range(N)]
   before = [[(-1, -1) for i in range(N)] for j in range(N)]
   cur_exit_length = 0
-  start = (N-1, 0)
 
   while(cnt <= 150):
 
     i,j = current
-    #visited[i][j] = 1
-
+    print(current)
+    if(m[i][j] == 'W' or m[i][j] == 'P' or m[i][j] == 'WP' or m[i][j] == 'PW'):
+      break
     if(current != prev):
       move_path.append(current)
     
     moved = False
     # print('current: {}, prev: {}'.format(current, prev))
     next_move = findNextMoveOf(i,j,N)
+    kb = And(kb, union(i, j, m, N))
     #print(next_move)
     if(isSafe(i, j, start, m)):
-      kb = And(kb, union(i, j, m, N))
       #print(kb)
       for d in range(len(next_move)):
         if(checkNextMove(d, next_move, freq_table)):
@@ -158,13 +162,11 @@ def findPathOfGame(m, N):
           prev = current
           current = next_move[d]
           moved = True
-          kb = And(kb, union(next_move[d][0], next_move[d][1], m, N))
           break
 
     else:
-      kb = And(kb, union(i, j, m, N))
       #print(kb)
-      result = satisfiable(And(kb, union(i, j, m, N)))
+      result = satisfiable(kb)
       #print(result)
       possible = [k for k,v in result.items() if v == False]
       safe = buildSafeList(possible, kb)
@@ -178,7 +180,6 @@ def findPathOfGame(m, N):
             prev = current
             current = next_move[d]
             moved = True
-            kb = And(kb, union(next_move[d][0], next_move[d][1], m, N))
             break
     #print('move to: ' + str(current))
     # print(freq_table)
@@ -186,6 +187,7 @@ def findPathOfGame(m, N):
     if(moved == False):
       # print(freq_table)
       before = BFS(current, start, visited, before, freq_table, N)
+      print(satisfiable(kb))
       # print(before)
       way_to_exit = path(before, current, start)
       way_to_exit.pop(0)

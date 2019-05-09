@@ -3,13 +3,9 @@ import math
 from logic import findPathOfGame
 import sys
 #---------------SET UP MAP-------------------------
-filename = ''
 print(sys.argv)
-if(sys.argv[1] == '1'):
-    filename = 'map.txt'
-elif(sys.argv[1] == '2'):
-    filename = 'map01.txt'
-f = open(filename)
+if(len(sys.argv) > 1):
+    f = open('map0' + sys.argv[1] + '.txt')
 N = int(f.readline())
 m = [[j for j in line.split()] for line in f]
 area_1_block = 55
@@ -241,12 +237,13 @@ for x in range (len(m)):
         if character == 'A':
             x_agent = x
             y_agent = y
+            break
 
 setup_maze(m)
 
-print(x_agent, y_agent)
+#print(x_agent, y_agent)
 
-solution = findPathOfGame(m, N)
+solution = findPathOfGame(m, N, (x_agent, y_agent))
 
 def eatGold():
     for g in goldList:
