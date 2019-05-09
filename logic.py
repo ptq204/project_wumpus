@@ -88,7 +88,7 @@ def union(i,j, m, N):
 def isSafe(i, j, start, m):
   return ((m[i][j] == '-') or (i == start[0] and j == start[1]))
 
-def buildSafeList(possible, kb):
+def buildSafeList(possible, kb, safe_list):
   safe = []
   f = {}
   for pos in possible:
@@ -101,7 +101,8 @@ def buildSafeList(possible, kb):
       w = symbols('W_'+index)
       p = symbols('P_'+index)
       kb = And(kb, And(Not(w),Not(p)))
-      safe.append((int(index[0]), int(index[1])))
+      if(not (int(index[0]), int(index[1])) in safe_list):
+        safe.append((int(index[0]), int(index[1])))
   return safe
 
 def checkNextMove(i, next_move, freq_table):
@@ -129,7 +130,6 @@ def findNextMoveOf(i,j,N):
 
 def findPathOfGame(m, N, start):
   freq_table = [[0 for i in range(N)] for j in range(N)]
-  freq_table[N-1][0] = 1000
   freq_table[start[0]][start[1]] = 1000
   current = start
   prev = current
@@ -141,6 +141,7 @@ def findPathOfGame(m, N, start):
   before = [[(-1, -1) for i in range(N)] for j in range(N)]
   cur_exit_length = 0
 
+  indx = 0
   while(cnt <= 150):
 
     i,j = current
@@ -149,6 +150,7 @@ def findPathOfGame(m, N, start):
       break
     if(current != prev):
       move_path.append(current)
+      indx+=1
     
     moved = False
     # print('current: {}, prev: {}'.format(current, prev))
@@ -170,10 +172,16 @@ def findPathOfGame(m, N, start):
       result = satisfiable(kb)
       #print(result)
       possible = [k for k,v in result.items() if v == False]
-      safe = buildSafeList(possible, kb)
+      safe = buildSafeList(possible, kb, safe_list)
+      print(safe)
       if(len(safe) == 0):
         current = prev
+        indx -= 1
+        prev = move_path[indx]
+        #print('{} {}'.format(safe, current))
+        moved = True
       else:
+        #print(safe)
         safe_list += safe
         for d in range(len(next_move)):
           if(checkNextMove(d, next_move, freq_table) and (next_move[d][0], next_move[d][1]) in safe_list):
@@ -182,10 +190,15 @@ def findPathOfGame(m, N, start):
             current = next_move[d]
             moved = True
             break
+        if(moved == False):
+          current = prev
+          indx -= 1
+          prev = move_path[indx]
+          moved = True
     #print('move to: ' + str(current))
     # print(freq_table)
     #-----------------SUA CHO NAY -------------------#
-    if(moved == False):
+    if(moved == False or cnt == 150):
       # print(freq_table)
       BFS(current, start, visited, before, freq_table, N)
       print(satisfiable(kb))
