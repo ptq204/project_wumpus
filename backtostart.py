@@ -63,13 +63,15 @@ def BFS(current, start, visited, before, f_table, n):
                 queue.append((i, j-1))
                 before[i][j-1] = state
                 #print("da vao 4")
-        if state == start:
-            break
+
         if len(queue) == 0:
             break
         else:
             state = queue.pop(0)
-    return before
+
+        if state == start:
+            break
+    # return before
 
 def path(before, current, start):
     result = []

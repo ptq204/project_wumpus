@@ -273,3 +273,4 @@ for room in solution:
 print("Player Point: ", agent.point + 10)
 print("The Agent has escaped!!!")
 print("Total move: ", len(solution))
+print(solution)
