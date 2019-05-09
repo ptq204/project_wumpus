@@ -1,5 +1,11 @@
-4
-S - B P
-W BSG P B
-S - B -
-A B P B
+10
+- - - - - - - - - -
+- - - - - S - - - S
+- - S - S W S - BGS W
+- S W S - S - B P BS
+- - S - B G - - B -
+- - A B P B G - - -
+- - - - B - - - - -
+- - - - - - - S - -
+G G G - - - S W S -
+- - - - - - - GS G G
